@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,12 +22,125 @@ class Homepage extends StatefulWidget {
 class _HomepageState extends State<Homepage> {
   TextEditingController nameController = TextEditingController();
   TextEditingController ageController = TextEditingController();
+  TextEditingController dateFromController = TextEditingController();
+  TextEditingController dateToController = TextEditingController();
+
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
-    // TODO: implement initState
     context.read<UserDatabase>().loadUsers();
     super.initState();
+  }
+
+  Future<void> _selectDateFrom() async {
+    DateTime? _datePicked = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(2010),
+        lastDate: DateTime.now());
+
+    if (_datePicked != null) {
+      dateFromController.text = _datePicked.toString();
+    }
+  }
+
+  Future<void> _selectDateTo() async {
+    DateTime? _datePicked = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime.now(),
+        lastDate: DateTime(2100));
+
+    if (_datePicked != null) {
+      dateToController.text = _datePicked.toString();
+    }
+  }
+
+  void filterUsers() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          controller: nameController,
+                          decoration: const InputDecoration(labelText: 'Name'),
+                        ),
+                        TextFormField(
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(2)
+                          ],
+                          controller: ageController,
+                          decoration: const InputDecoration(labelText: 'Age'),
+                        ),
+                        TextFormField(
+                          readOnly: true,
+                          controller: dateFromController,
+                          decoration: const InputDecoration(
+                              labelText: 'Creation date from',
+                              prefixIcon: Icon(Icons.calendar_today)),
+                          mouseCursor: MaterialStateMouseCursor.clickable,
+                          onTap: _selectDateFrom,
+                        ),
+                        TextField(
+                          readOnly: true,
+                          controller: dateToController,
+                          decoration: const InputDecoration(
+                              labelText: 'Creation date to',
+                              prefixIcon: Icon(Icons.calendar_today)),
+                          mouseCursor: MaterialStateMouseCursor.clickable,
+                          onTap: _selectDateTo,
+                        )
+                      ],
+                    ))
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  nameController.clear();
+                  ageController.clear();
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    log('filters applied successfully $dateFromController.text');
+                    context.read<UserDatabase>().filterUsers(
+                        name: nameController.text,
+                        age: ageController.text.isNotEmpty
+                            ? int.parse(ageController.text)
+                            : null,
+                        dateFrom: dateFromController.text.isNotEmpty
+                            ? DateTime.parse(dateFromController.text)
+                            : null,
+                        dateTo: dateToController.text.isNotEmpty
+                            ? DateTime.parse(dateToController.text)
+                            : null);
+                    nameController.clear();
+                    ageController.clear();
+                    Navigator.of(context).pop();
+                  }
+                },
+                child: const Text('Filter'),
+              ),
+            ],
+          );
+        });
   }
 
   void createUser() {
@@ -90,6 +205,12 @@ class _HomepageState extends State<Homepage> {
     return Scaffold(
         appBar: AppBar(
           title: const Text('Isar DB'),
+          actions: [
+            IconButton(
+              onPressed: filterUsers,
+              icon: const Icon(Icons.filter_alt_outlined),
+            )
+          ],
         ),
         drawer: MyDrawer(),
         floatingActionButton: FloatingActionButton(

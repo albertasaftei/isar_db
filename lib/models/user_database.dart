@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -7,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 
 class UserDatabase extends ChangeNotifier {
   static late Isar isar;
+
   final List<User> users = [];
 
   static Future<void> initDatabase() async {
@@ -24,7 +26,6 @@ class UserDatabase extends ChangeNotifier {
   }
 
   Future<void> addUser(User user) async {
-    log(user.createdAt.toString());
     await isar.writeTxn(
       () async {
         await isar.users.put(user);
@@ -52,5 +53,19 @@ class UserDatabase extends ChangeNotifier {
       },
     );
     await loadUsers();
+  }
+
+  Future<void> filterUsers(
+      {String? name, int? age, DateTime? dateFrom, DateTime? dateTo}) async {
+    users.clear();
+    final query = isar.users.where();
+
+    if (name != null) {
+      query.filter().nameEqualTo(name).findAll();
+    }
+
+    users.addAll(await query.findAll());
+    print('users: $users');
+    notifyListeners();
   }
 }
