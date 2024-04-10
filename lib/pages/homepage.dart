@@ -7,7 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:isar_db/components/drawer.dart';
 import 'package:isar_db/models/user.dart';
 import 'package:isar_db/models/user_database.dart';
-import 'package:isar_db/theme/theme_provider.dart';
+import 'package:isar_db/utils/theme/theme_provider.dart';
 import 'package:provider/provider.dart';
 
 class Homepage extends StatefulWidget {
@@ -28,6 +28,7 @@ class _HomepageState extends State<Homepage> {
     super.initState();
   }
 
+// MARK: - Create function
   void createUser() {
     User user = User();
     showDialog(
@@ -96,11 +97,20 @@ class _HomepageState extends State<Homepage> {
           onPressed: createUser,
           child: const Icon(Icons.add),
         ),
-        body: _renderCards(users));
+        body: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            _renderCards(users),
+            ElevatedButton(onPressed: () {}, child: const Text('Load Users'))
+          ],
+        ));
   }
 
+  // MARK: - Render Cards
   ListView _renderCards(List<User> users) {
     return ListView.separated(
+        scrollDirection: Axis.vertical,
+        shrinkWrap: true,
         separatorBuilder: (context, index) => const Gap(5),
         itemCount: users.length,
         itemBuilder: (context, index) {

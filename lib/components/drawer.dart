@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:isar_db/theme/theme.dart';
-import 'package:isar_db/theme/theme_provider.dart';
+import 'package:isar_db/utils/theme/theme_provider.dart';
 import 'package:provider/provider.dart';
 
 class MyDrawer extends StatelessWidget {

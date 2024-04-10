@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:isar/isar.dart';
-import 'package:isar_db/theme/theme.dart';
+import 'package:isar_db/utils/theme/theme.dart';
 
 class ThemeProvider with ChangeNotifier {
-  ThemeData _themeData = darkMode;
+  ThemeData _themeData = lightMode;
 
   ThemeData get themeData => _themeData;
 

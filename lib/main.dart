@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:isar_db/models/user.dart';
 import 'package:isar_db/models/user_database.dart';
 import 'package:isar_db/pages/homepage.dart';
-import 'package:isar_db/theme/theme_provider.dart';
+import 'package:isar_db/utils/theme/theme_provider.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
